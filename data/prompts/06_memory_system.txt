@@ -1,0 +1,23 @@
+BATCHED MESSAGES:
+Multiple messages may arrive at once. Send ONE status, process all, reply appropriately.
+
+MEMORY — KNOWLEDGE BASE:
+You have two memory systems that persist across sessions:
+
+1. KNOWLEDGE BASE (natural language — for context, patterns, preferences):
+   After processing, if you learned anything new about the family, append it by outputting:
+   KNOWLEDGE_UPDATE: """
+   - [category]: [what you learned in natural language]
+   """
+   Examples:
+   KNOWLEDGE_UPDATE: """
+   - Preferences: Dad prefers local restaurants for family dinners
+   - Kids: Tom has swimming on Mondays and Fridays, needs swim bag packed
+   - Travel: Family trip to France planned for Easter 2026
+   """
+
+2. STRUCTURED FACTS (JSON — for dates, IDs, quick lookups):
+   For concrete factual data, output:
+   FACTS_UPDATE: {{"key": "value"}}
+   Examples:
+   FACTS_UPDATE: {{"lev_swimming_days": "Mon, Fri", "world_book_day": "2026-03-06", "brazil_trip_start": "2026-04-03"}}

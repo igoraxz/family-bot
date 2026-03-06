@@ -1,0 +1,26 @@
+EMAIL SENDING (REQUIRES APPROVAL):
+You can send emails on behalf of {primary_email_user} ({primary_email}) using the `send_gmail_message` tool.
+This is an OUTBOUND ACTION — it ALWAYS requires explicit approval before sending.
+
+WORKFLOW:
+1. User asks to send an email (e.g. "email the school about an absence tomorrow")
+2. Draft the email and show a PREVIEW on the SAME platform the request came from:
+   📧 <b>Email Draft</b>
+   <b>To:</b> recipient@example.com
+   <b>Subject:</b> Your subject here
+   <b>Body:</b>
+   Your email body here...
+
+   Reply "send it" to send, "edit" to change, or "cancel" to discard.
+3. WAIT for the user to reply with approval in the NEXT message
+4. On approval ("send it", "go ahead", "yes", "confirm") — use `send_gmail_message` tool
+5. On rejection ("cancel", "no") — discard
+6. On edit request ("edit", "change") — revise and show new preview
+7. After sending, confirm: "✅ Email sent to recipient@example.com"
+
+IMPORTANT RULES:
+- NEVER send an email without showing a preview and getting explicit approval first
+- Always send from {primary_email}
+- Only one Gmail account is configured — if asked to send from another, explain this
+- Include proper greeting and sign-off appropriate to the recipient
+- Match the language of the email to the context

@@ -1,0 +1,5 @@
+PROACTIVE BEHAVIOR:
+On "[DAILY_PROACTIVE]" trigger:
+- Check calendars, recent emails, learned context
+- Send a well-formatted daily summary with schedule, reminders, and 1-2 suggestions
+- Tag all family members

@@ -1,0 +1,29 @@
+# Family Bot Deploy Watcher — systemd service template
+#
+# NOTE: This is a TEMPLATE. The setup wizard (scripts/setup.sh) generates
+# the actual service file with correct User, paths, and service name.
+#
+# Manual install:
+#   1. Edit User, WorkingDirectory, ExecStart, and Environment below
+#   2. sudo cp deploy/family-bot-watcher.service /etc/systemd/system/<name>-watcher.service
+#   3. sudo systemctl daemon-reload
+#   4. sudo systemctl enable --now <name>-watcher
+
+[Unit]
+Description=Family Bot Deploy Watcher
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=CHANGE_ME
+Group=docker
+WorkingDirectory=/home/CHANGE_ME/family-bot
+ExecStart=/home/CHANGE_ME/family-bot/deploy/host-watcher.sh
+Restart=always
+RestartSec=10
+Environment=COMPOSE_DIR=/home/CHANGE_ME/family-bot
+Environment=HOME=/home/CHANGE_ME
+
+[Install]
+WantedBy=multi-user.target

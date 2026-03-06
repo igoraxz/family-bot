@@ -1,0 +1,79 @@
+services:
+  bot-core:
+    build: .
+    container_name: ${COMPOSE_PROJECT_NAME:-family-bot}
+    restart: unless-stopped
+    depends_on:
+      - wa-bridge
+    ports:
+      - "${BOT_PORT:-8000}:8000"
+    deploy:
+      resources:
+        limits:
+          memory: 16G
+    env_file:
+      - .env
+    environment:
+      - WA_DB_PATH=/app/wa-data/messages.db
+      - WA_BRIDGE_URL=http://wa-bridge:8080
+      - LOG_DIR=/app/logs
+      - TZ=${TZ:-Europe/London}
+      - MEDIA_RETENTION_DAYS=${MEDIA_RETENTION_DAYS:-30}
+      - FAMILY_CONFIG_PATH=/app/data/family_config.json
+    volumes:
+      # Persistent bot data (conversations DB, state files)
+      - bot-data:/app/data
+      # Persistent logs
+      - bot-logs:/app/logs
+      # Claude Agent SDK sessions (persist across restarts)
+      - claude-sessions:/home/botuser/.claude
+      # Prompt files (editable without rebuild)
+      - ./data/prompts:/app/data/prompts:ro
+      # Family config (identity, members, goals — editable without rebuild)
+      - ./data/family_config.json:/app/data/family_config.json:ro
+      # Knowledge & facts — bot WRITES to these (create empty files first)
+      - ./data/family_knowledge.md:/app/data/family_knowledge.md
+      - ./data/family_facts.json:/app/data/family_facts.json
+      - ./data/family_goals.json:/app/data/family_goals.json
+      # Media cache (persistent, writable)
+      - media-cache:/app/data/media_cache
+      # Google Workspace MCP credentials (generated via scripts/setup_google_credentials.py)
+      - ./data/google-workspace-creds:/app/data/google-workspace-creds:rw
+      # Shared WA bridge data (read by WhatsApp MCP server + WA polling)
+      - wa-data:/app/wa-data:ro
+      # WhatsApp MCP server code (run as stdio subprocess by Agent SDK)
+      - ./whatsapp-mcp-server:/app/whatsapp-mcp-server:ro
+      # Shared media dir for sending files to WA bridge
+      - shared-media:/shared-media
+      # Self-upgrade: mount repo root so git + docker work from inside container
+      - .:/host-repo
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Git deploy key for self-upgrade push (optional — create if using self-upgrade)
+      # - ~/.ssh/github_deploy:/root/.ssh/id_ed25519:ro
+      # - ~/.ssh/github_deploy.pub:/root/.ssh/id_ed25519.pub:ro
+
+  wa-bridge:
+    build:
+      context: .
+      dockerfile: wa-bridge.Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-family-bot}-wa-bridge
+    restart: unless-stopped
+    volumes:
+      - wa-data:/app/store
+      - shared-media:/shared-media:ro
+    environment:
+      - TZ=${TZ:-Europe/London}
+
+volumes:
+  bot-data:
+    driver: local
+  bot-logs:
+    driver: local
+  claude-sessions:
+    driver: local
+  media-cache:
+    driver: local
+  wa-data:
+    driver: local
+  shared-media:
+    driver: local

@@ -1,0 +1,16 @@
+# Pinned versions — review periodically for security patches
+# Last reviewed: 2026-03-06
+claude-agent-sdk==0.1.47
+anthropic==0.84.0
+fastapi==0.135.1
+uvicorn[standard]==0.41.0
+httpx==0.28.1
+aiosqlite==0.22.1
+PyPDF2==3.0.1
+Pillow==12.1.1
+python-dotenv==1.2.2
+python-multipart==0.0.22
+google-genai==1.66.0
+numpy==2.2.3
+pytest>=8.0.0
+pytest-asyncio>=0.24.0

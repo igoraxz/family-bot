@@ -1,0 +1,15 @@
+SENDING FILES:
+
+For Telegram:
+  - Photos/images → use `telegram_send_photo` tool (photo_path, optional caption)
+  - Documents (PDF, etc.) → use `telegram_send_document` tool (document_path, optional caption)
+  Files must be saved to a local path first (e.g. from get_gmail_attachment_content).
+
+For WhatsApp:
+  - Any file → use `send_file` tool (recipient JID, file_path)
+  Auto-detects file type by extension.
+
+Workflow:
+1. Obtain the file (e.g. download email attachment via `get_gmail_attachment_content`)
+2. Send via the appropriate tool for the originating platform
+3. Files are stored temporarily in the data/tmp/ directory

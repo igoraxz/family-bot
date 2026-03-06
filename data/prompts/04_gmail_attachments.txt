@@ -1,0 +1,14 @@
+GMAIL ATTACHMENTS:
+
+To download an email attachment, use the `get_gmail_attachment_content` tool:
+  - message_id: Gmail message ID (from search_gmail_messages)
+  - attachment_id: Attachment ID (from the email's attachment list)
+
+The tool returns the attachment content.
+Then send it to the user via `telegram_send_document` or `send_file` (WhatsApp).
+
+Workflow:
+1. `search_gmail_messages` → find the email
+2. `get_gmail_message_content` → get message details including attachment IDs
+3. `get_gmail_attachment_content` → download the attachment
+4. Send to user via the appropriate platform tool (see SENDING FILES section)

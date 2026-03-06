@@ -1,0 +1,235 @@
+## Coding Principles — Apply to ALL Programming Tasks
+
+These principles govern ALL coding work: self-upgrade, new software, scripts, tools, debugging,
+external projects — any programming task. Code quality and design correctness matter more than speed.
+
+Every development plan MUST pass a self-review before being shown to the user.
+
+### Review Modes
+
+**Default — Self-Review (always):**
+After drafting a plan, pause and explicitly answer these 5 challenge questions before presenting:
+1. Why not simpler? (Simplicity)
+2. What becomes obsolete? Which docs need updating? (No Dead Code / No Stale Docs)
+3. What happens on failure/restart? (Completeness + Graceful Degradation)
+4. Does this introduce new attack surface? (Security)
+5. What exact steps verify this works? (Testing)
+Include the answers in the plan output.
+
+**Escalated — Architect Review (user-approved, for complex tasks):**
+If you assess the task as large, risky, or architecturally significant (new systems, multi-file
+refactors, security-sensitive changes, new integrations), suggest to the user:
+*"This looks like a significant change. Want me to run it through architect review first?"*
+If the user agrees, spawn a separate agent with an architect-only prompt that:
+- Reviews the plan against ALL 21 principles below
+- Identifies risks, missed edge cases, simpler alternatives
+- Returns a critique with specific actionable items
+Then address each critique point before presenting the final plan.
+The user can decline — in which case, proceed with self-review only.
+
+**ARCHITECT GOALS:**
+- Maximize code quality and maintainability
+- Minimize security risks
+- Maximize productivity (less rework, fewer bugs)
+- Minimize redundancy, complexity, and tech debt
+- Remove unused code and data proactively
+- Ensure observability of all new functionality
+
+---
+
+**ARCHITECT PRINCIPLES — Comprehensive Checklist**
+
+Run this checklist mentally before presenting ANY development plan.
+Each principle has a challenge question — ask yourself before proceeding.
+
+**=== A. DESIGN ===**
+
+1. **SIMPLICITY FIRST**
+   The simplest solution that solves the problem well wins. Fewer moving parts = fewer bugs.
+   Prefer flat over nested, concrete over abstract, explicit over implicit.
+   → *"Why not simpler? Could we achieve this with fewer moving parts?"*
+
+2. **YAGNI — "You Ain't Gonna Need It"**
+   Solve the current problem only. Do not build for speculative future needs.
+   If it's not needed right now, don't add it — it can always be added later.
+   → *"Is this needed right now, or is it speculation about the future?"*
+
+3. **SEPARATION OF CONCERNS**
+   Each module/file owns one responsibility. Business logic doesn't mix with I/O.
+   Prompts stay in prompt files, config stays in config, logic stays in code.
+   **Family-specific vs generic code**: All family-specific data (names, IDs, schedules,
+   preferences) MUST live in config files (`family_config.json`, `.env`, `data/prompts/`),
+   NEVER hardcoded in source code. Source code must be fully generic so it can be merged
+   upstream to the open-source repository without leaking private data. Before committing,
+   always check: "Does this code contain any family-specific names, IDs, or details?"
+   → *"If one part changes, will it drag unrelated parts with it?"*
+
+4. **LEAST ASTONISHMENT**
+   Code and APIs behave as a reader would expect. Function does exactly what its name says.
+   No hidden side effects, no surprising defaults, no magic behavior.
+   → *"Will this behavior be obvious to someone reading the code in 3 months?"*
+
+5. **MINIMAL COUPLING (Law of Demeter)**
+   A module talks only to its direct dependencies. No deep chains like `a.b.c.d`.
+   Pass data explicitly rather than reaching into nested structures.
+   → *"How many levels deep does this code reach into other modules?"*
+
+**=== B. CODE QUALITY ===**
+
+6. **NO REDUNDANCY (DRY)**
+   Every piece of logic/config exists in exactly one place. If two things do the same job,
+   one must go. Identify which and consolidate.
+   → *"Does this duplicate anything that already exists? Can we use one instead of two?"*
+
+7. **NO DEAD CODE / NO STALE DOCS**
+   When a change makes existing code/configs/prompts obsolete, remove them as part of
+   the same change — not "later". Dead code is tech debt that compounds.
+   **Documentation is code**: every code change must update all affected text files —
+   README.md, ARCHITECTURE.md, CLAUDE.md, .env.example, code comments, and prompt files.
+   Stale documentation is worse than no documentation because it actively misleads.
+   → *"What becomes stale after this change? List it and plan removal.
+      Which docs (README, ARCHITECTURE, CLAUDE.md, prompts) need updating?"*
+
+8. **SINGLE SOURCE OF TRUTH**
+   Every piece of data (config value, constant, ID, path) has exactly one canonical location.
+   Other places reference it, never duplicate it. If a value appears in two places,
+   extract it to one authoritative source.
+   → *"Is this value defined in exactly one place? Who owns it?"*
+
+9. **COMPLETENESS**
+   Every new component is fully specified: behavior, edge cases, error handling, restart behavior.
+   No "TODO: handle later" — define it now or don't ship it.
+   → *"What happens on error? On empty input? On restart? On timeout?"*
+
+**=== C. RESILIENCE & OPERATIONS ===**
+
+10. **GRACEFUL DEGRADATION**
+    If a service/API/dependency is unavailable, the system continues with reduced functionality
+    rather than crashing entirely. Every external call has a failure path.
+    → *"What happens if this dependency dies? Does the system still work?"*
+
+11. **BLAST RADIUS MINIMIZATION**
+    Each change touches the smallest possible area. If something breaks, the damage is contained.
+    Small commits, isolated modules, clear boundaries between components.
+    → *"If this code breaks, what else fails with it? How do we contain the blast?"*
+
+12. **ROLLBACK-FIRST DESIGN**
+    Every deployment must be reversible within 60 seconds (`git revert` + rebuild).
+    Never make changes that are hard to undo (data migrations, schema changes without backups).
+    → *"How do we roll back if this goes wrong? Can we do it in under a minute?"*
+
+**=== D. OBSERVABILITY ===**
+
+13. **OBSERVABILITY BY DEFAULT**
+    Every new feature, parameter, or behavior MUST include appropriate logging and metrics
+    from day one. Not as an afterthought — as part of the initial implementation.
+    - Log key decisions, state changes, and performance-relevant data
+    - Use structured logging (key=value pairs in log messages)
+    - Include timing for operations that could be slow
+    - Make it possible to understand system behavior from logs alone
+    → *"If this feature misbehaves in production, can we diagnose it from logs alone?"*
+
+14. **SELF-OPTIMIZATION AWARENESS**
+    Every tunable parameter must be:
+    - Externalized (not hardcoded) — in config, env vars, or structured data
+    - Measurable — there must be a way to evaluate if the current value is optimal
+    - Logged — parameter values and their effects are recorded
+    When adding new functionality, ensure new parameters are discoverable and adjustable
+    without code changes.
+    → *"Can we measure this? How would someone know to tune it?"*
+
+15. **CONFIGURATION AS CODE**
+    All tunable values are externalized to config files, environment variables, or structured facts.
+    Never hardcode values that might need adjustment (thresholds, intervals, limits, URLs).
+    Document each config value: what it does, valid range, default, and why that default.
+    → *"Is every tunable value externalized? Are defaults documented with rationale?"*
+
+**=== E. SECURITY & DEPLOYMENT ===**
+
+16. **SECURITY BY DEFAULT**
+    Every change is reviewed for security implications:
+    - New endpoints → authentication required
+    - New data flows → sensitive data protection
+    - New dependencies → supply chain risk (no new/updated deps without explicit approval)
+    - Credential handling → never logged, never in chat, never in git
+    - Input validation → all external input is untrusted
+    → *"Does this introduce any new attack surface? New data exposure risk?"*
+
+17. **DATA ACCESS ISOLATION**
+    Every data store, API, and resource has explicit, configurable access rules:
+    - WHO can access (user roles: admin, authorized user, third-party, anonymous)
+    - WHAT they can access (which data, endpoints, tools, files)
+    - HOW access is enforced (middleware, hooks, checks — not just convention)
+    Design principles:
+    - Default deny: nothing is accessible unless explicitly granted
+    - Access rules must be readable and auditable (defined in config, not scattered in code)
+    - Enforcement is centralized (single gate, not duplicated checks)
+    - Violations are logged with full context (who, what, when, from where)
+    - Sensitive data (credentials, personal info) has additional isolation layers
+    - Third-party interactions get minimal, explicitly approved data access
+    → *"Who can access this data? Where is access enforced? Is it default-deny? Can we audit it?"*
+
+18. **DEPLOYMENT DISCIPLINE**
+    - Each change = separate commit with descriptive message
+    - Always verify before commit (syntax check, lint, type check as appropriate)
+    - Push before deploy — never deploy uncommitted or unpushed code
+    - Prefer automated deploy tooling over manual commands
+    - Every deployment must be reversible
+    → *"Is the commit atomic? Is it verified? Is it pushed?"*
+
+**=== F. PROCESS ===**
+
+19. **FEASIBILITY CHECK**
+    Before implementing, verify the plan actually works in the target environment:
+    - Does it depend on APIs/endpoints/features that aren't available?
+    - Will it work with the runtime setup, permissions, network?
+    - Are all referenced tools/libraries actually available?
+    → *"Can this actually run in the target environment, or are we building something that can't work?"*
+
+20. **TESTING STRATEGY & QA**
+    Every change has specific, concrete verification steps — not vague "we'll check".
+    Define: what does success look like? What metrics confirm correct behavior?
+    Include both positive tests (it works) and negative tests (it handles errors).
+    Integration testing is mandatory for every new feature or change:
+    - Test the new feature end-to-end in isolation (unit/functional test)
+    - Test integration with ALL touching systems
+    - Verify existing functionality is NOT broken (regression check)
+    - Document ALL test steps in the plan; execute ALL before declaring "done"
+    - If ANY test fails → fix before deploy. Never ship broken integration.
+    → *"What exact steps verify this works? What integration points need testing?
+       Have ALL tests passed — both the new feature AND existing functionality?"*
+
+21. **PLAN ADHERENCE**
+    Implementation matches the approved plan point by point. Any deviations are flagged
+    explicitly with reasoning: "This differs from plan because..."
+    Never silently change scope or approach mid-implementation.
+    → *"Does the implementation match the plan exactly? Any deviations to flag?"*
+
+---
+
+**PLAN FORMAT — present plans with answers pre-embedded:**
+
+When showing a development plan, structure it as:
+
+```
+PLAN: [name]
+GOAL: [one sentence]
+CHANGES: [files and what changes in each]
+SIMPLICITY CHECK: [why this is the simplest adequate solution]
+WHAT BECOMES OBSOLETE: [dead code/configs to remove]
+OBSERVABILITY: [what logging/metrics are added]
+DATA ACCESS: [who accesses what data, where enforced, default-deny check]
+TESTING & QA: [unit tests, integration tests, regression checks — ALL must pass before "done"]
+SECURITY: [any new risks + mitigations]
+RISKS: [what could go wrong + rollback plan]
+```
+
+This eliminates back-and-forth by answering expected questions upfront.
+
+### General Coding Rules:
+1. ALWAYS grep/search before reading — understand what exists first
+2. ALWAYS use offset/limit for large files (>200 lines)
+3. ALWAYS show the user what you plan to change before editing
+4. Make minimal, focused changes — don't refactor surrounding code
+5. NEVER update dependency versions without explicit approval — all deps are pinned (supply chain security)
+6. Use Python 3.12 typing: `dict`, `list`, `str | None` — NOT `Dict`, `List`, `Optional`

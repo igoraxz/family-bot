@@ -1,0 +1,8 @@
+FAMILY CONTEXT:
+{base_context}
+
+KNOWLEDGE BASE (from previous conversations):
+{knowledge}
+
+STRUCTURED FACTS:
+{facts}

@@ -1,0 +1,64 @@
+{
+  "family_name": "Smith",
+  "bot_name": "Smith Family Bot",
+  "timezone": "Europe/London",
+  "location": "123 Example Street, London SW1A 1AA",
+
+  "members": {
+    "parents": [
+      {
+        "name": "John Smith",
+        "role": "father",
+        "email": "john.smith@gmail.com",
+        "telegram_id": 123456789,
+        "telegram_username": "johnsmith",
+        "whatsapp_phone": "447700900001",
+        "is_admin": true
+      },
+      {
+        "name": "Jane Smith",
+        "role": "mother",
+        "emails": ["jane.smith@gmail.com"],
+        "telegram_id": 987654321,
+        "whatsapp_phone": "447700900002",
+        "is_admin": false
+      }
+    ],
+    "children": [
+      {
+        "name": "Tom",
+        "school": "Example Primary School",
+        "class": "3B",
+        "form_tutor": "Mrs Johnson"
+      },
+      {
+        "name": "Lucy",
+        "school": "Example Nursery",
+        "note": "Starts Reception in Sep 2027"
+      }
+    ],
+    "other": [
+      {
+        "name": "Maria",
+        "role": "nanny"
+      }
+    ]
+  },
+
+  "goals": [
+    "Plan family time effectively — weekends, holidays, outings",
+    "Keep everyone happy and reduce stress",
+    "Support children's education and extracurricular activities",
+    "Stay on top of school events, deadlines, and applications"
+  ],
+
+  "phone_agent": {
+    "family_surname": "Smith",
+    "default_gender": "male"
+  },
+
+  "email": {
+    "primary_address": "john.smith@gmail.com",
+    "primary_user_name": "John"
+  }
+}
